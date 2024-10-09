@@ -1,0 +1,73 @@
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  /* max-width: 600px; */
+  margin: 0 auto;
+}
+
+.search-input {
+  width: 80%;
+  padding: 10px 15px;
+  border: 2px solid #ccc;
+  border-radius: 20px;
+  font-size: 16px;
+  background-color: #f8f8f8;
+  color: #333;
+  transition: border-color 0.3s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+}
+
+.suggestions-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.suggestion-item {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.suggestion-item:hover {
+  background-color: #f0f0f0;
+}
+
+/* Dark theme adjustments */
+body.dark-theme .search-input {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  border-color: #34495e;
+}
+
+body.dark-theme .search-input:focus {
+  border-color: #3498db;
+}
+
+body.dark-theme .suggestions-list {
+  background-color: #34495e;
+  border-color: #2c3e50;
+}
+
+body.dark-theme .suggestion-item {
+  color: #ecf0f1;
+}
+
+body.dark-theme .suggestion-item:hover {
+  background-color: #2c3e50;
+}

@@ -1,0 +1,55 @@
+.video-card {
+  position: relative; /* Position relative for absolute positioning of dropdown */
+  /* margin: 10px; */
+  /* Other styles... */
+}
+
+.filter-controls {
+  position: absolute;
+  top: 5px; /* Aligns the three-dot icon to the top */
+  right: 5px; /* Aligns the three-dot icon to the right */
+  z-index: 10; /* Ensure it is above other elements */
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 30px; /* Position below the three-dot button */
+  right: 0;
+  color: red;
+  background:#4A5568; /* Background for dropdown */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Shadow */
+  z-index: 20; /* Ensure it is above other elements */
+  overflow-y: auto; /* Enables vertical scrolling */
+  height: 15vh;
+}
+#back{
+  color: #fff;
+}
+.dropdown-menu button {
+  display: block; /* Stack buttons */
+  width: 100%; /* Full width */
+  padding: 5px; /* Padding */
+  border: none; /* No border */
+  background: none; /* Transparent background */
+  text-align: left; /* Align text */
+  cursor: pointer; /* Pointer on hover */
+
+}
+.dropdown-menu button:hover {
+  background: #f0f0f0; /* Hover effect */
+}
+
+.video-element {
+  width: 100%;
+  height: auto;
+}
+
+.video-info {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.photographer-name {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
