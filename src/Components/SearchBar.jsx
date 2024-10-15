@@ -1,37 +1,24 @@
-/** @format */
+import React, { useState } from "react";
+import "./SearchBar.css"
 
-import React, { useState, useEffect, useCallback } from "react";
-import useDebounce from "../Hooks/useDebounce";
+const SearchBar = ({ onSearch, defaultQuery }) => {
+  const [input, setInput] = useState(defaultQuery);
 
-const SearchBar = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
-
-  const handleSearch = useCallback(() => {
-    onSearch(debouncedSearchTerm);
-  }, [debouncedSearchTerm, onSearch]);
-
-  useEffect(() => {
-    handleSearch();
-  }, [handleSearch]);
+  const handleInputChange = (e) => {
+    const newQuery = e.target.value;
+    setInput(newQuery);
+    onSearch(newQuery); // Trigger the search on input change
+  };
 
   return (
-    <div>
+    <div className="search-bar">
       <input
         type="text"
-        placeholder="Search for media..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        style={{
-          padding: "10px",
-          width: "560px",
-          fontSize: "16px",
-          marginBottom: "20px",
-          border: "1px solid #ccc",
-          borderRadius: "5px",
-          boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
-          transition: "box-shadow 0.3s ease"
-        }}
+        value={input}
+        onChange={handleInputChange}
+        placeholder="Search for images or videos..."
+        className="search-input"
+        
       />
     </div>
   );

@@ -5,6 +5,7 @@ import SearchBar from "../Components/SearchBar";
 import ResultsGrid from "../Components/ResultGrid";
 import { searchPhotos, searchVideos } from "../Service/api";
 import { useInView } from "react-intersection-observer";
+import useDebounce from "../Hooks/useDebounce";  // Assuming this is the path to your debounce hook
 import "./HomePage.css";
 
 const DEFAULT_QUERY = "nature"; // Default search query
@@ -17,6 +18,8 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const { ref, inView } = useInView();
+
+  const debouncedQuery = useDebounce(query, 500); // Debounce the query with 500ms delay
 
   const fetchContent = useCallback(
     async (searchQuery, pageNum) => {
@@ -52,19 +55,21 @@ const HomePage = () => {
 
   useEffect(() => {
     setPage(1);
-    fetchContent(query || DEFAULT_QUERY, 1);
-  }, [fetchContent, query, type]);
+    setResults([]); // Clear previous results on new search
+    fetchContent(debouncedQuery || DEFAULT_QUERY, 1); // Fetch content based on debounced query
+  }, [fetchContent, debouncedQuery, type]);
 
   useEffect(() => {
     if (inView && hasMore && !loading) {
-      fetchContent(query || DEFAULT_QUERY, page + 1);
+      fetchContent(debouncedQuery || DEFAULT_QUERY, page + 1);
       setPage((prevPage) => prevPage + 1);
     }
-  }, [inView, hasMore, loading, fetchContent, query, page]);
+  }, [inView, hasMore, loading, fetchContent, debouncedQuery, page]);
 
   const handleSearch = useCallback((newQuery) => {
     setQuery(newQuery);
     setPage(1);
+    setResults([]); // Clear results before new search
     setHasMore(true);
   }, []);
 
@@ -72,10 +77,10 @@ const HomePage = () => {
     (newType) => {
       setType(newType);
       setPage(1);
-      setResults([]);
-      fetchContent(query || DEFAULT_QUERY, 1);
+      setResults([]); // Clear results when switching type
+      fetchContent(debouncedQuery || DEFAULT_QUERY, 1);
     },
-    [query, fetchContent]
+    [debouncedQuery, fetchContent]
   );
 
   return (
@@ -84,12 +89,14 @@ const HomePage = () => {
         <div className="button-group">
           <button
             className={`button ${type === "images" ? "active" : ""}`}
-            onClick={() => handleTypeChange("images")}>
+            onClick={() => handleTypeChange("images")}
+          >
             Images
           </button>
           <button
             className={`button ${type === "videos" ? "active" : ""}`}
-            onClick={() => handleTypeChange("videos")}>
+            onClick={() => handleTypeChange("videos")}
+          >
             Videos
           </button>
         </div>
