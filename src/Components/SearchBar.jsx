@@ -1,13 +1,18 @@
 import React, { useState } from "react";
-import "./SearchBar.css"
+import "./SearchBar.css";
 
 const SearchBar = ({ onSearch, defaultQuery }) => {
   const [input, setInput] = useState(defaultQuery);
 
   const handleInputChange = (e) => {
-    const newQuery = e.target.value;
-    setInput(newQuery);
-    onSearch(newQuery); // Trigger the search on input change
+    setInput(e.target.value);
+    onSearch(e.target.value); // Call onSearch with updated input value
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      onSearch(input); // Trigger search on Enter key press
+    }
   };
 
   return (
@@ -16,9 +21,9 @@ const SearchBar = ({ onSearch, defaultQuery }) => {
         type="text"
         value={input}
         onChange={handleInputChange}
-        placeholder="Search for images or videos..."
+        onKeyDown={handleKeyDown} // Capture Enter key press
+        placeholder="Search for videos or images..."
         className="search-input"
-        
       />
     </div>
   );
