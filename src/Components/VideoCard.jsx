@@ -1,10 +1,13 @@
 import React from "react";
 import './VideoCard.css';
 
-const VideoCard = ({ video }) => {
+const VideoCard = ({ video, format }) => {
   return (
+    <>
+      {/* <p>{video.width}</p>
+      <p>{video.height}</p> */}
     <div className="video-card">
-      <video controls className="video-element">
+      <video controls className="video-element" >
         <source src={video.video_files[0].link} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
@@ -12,6 +15,8 @@ const VideoCard = ({ video }) => {
         {/* Additional video info can be displayed here if needed */}
       </div>
     </div>
+    </>
+    
   );
 };
 

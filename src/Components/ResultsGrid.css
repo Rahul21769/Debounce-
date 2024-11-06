@@ -47,8 +47,8 @@
 }
 
 .masonry-image {
-  width: 100%;
-  height: auto;
+  /* width: 100%;
+  height: auto; */
   display: block;
   border-radius: 4px;
   cursor: pointer;

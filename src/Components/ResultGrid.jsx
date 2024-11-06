@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./ResultsGrid.css";
 import VideoCard from "./VideoCard";
 
-const ResultsGrid = ({ results, type, loading }) => {
+const ResultsGrid = ({ results, type, loading, videoFormat }) => {
   const [filteredResults, setFilteredResults] = useState(results);
 
   useEffect(() => {
@@ -11,6 +11,7 @@ const ResultsGrid = ({ results, type, loading }) => {
 
   return (
     <div>
+    
       {loading ? (
         <div>Loading...</div>
       ) : (
@@ -19,17 +20,20 @@ const ResultsGrid = ({ results, type, loading }) => {
             <div key={index} className="masonry-grid-item">
               {type === "images" ? (
                 item.src?.large ? (  // Optional chaining
-                  <img
-                    src={item.src.large}
-                    alt={item.alt || "Image"}
-                    className="masonry-image"
-                    loading="lazy"
-                  />
+                  <>
+                    <img
+                      src={item.src.large}
+                      alt={item.alt || "Image"}
+                      className="masonry-image"
+                      loading="lazy" width={item.width} height={item.height}
+                    />
+                  </>
+                  
                 ) : (
                   <div>No image available</div> // Fallback if `large` is undefined
                 )
               ) : (
-                item.video_files?.length > 0 && <VideoCard video={item} />
+                item.video_files?.length > 0 && <VideoCard video={item} format={videoFormat} />
               )}
             </div>
           ))}
