@@ -119,8 +119,8 @@ const HomePage = () => {
           return aspectRatio < 1; // Landscape: width > height
         case "Portrait":
           return aspectRatio > 1; // Portrait: height > width
-        case "Square":
-          return aspectRatio === 1; // Square: height == width
+        // case "Square":
+        //   return aspectRatio === 1; // Square: height == width
         default:
           return true; // Show all videos if no specific format is selected
       }
@@ -153,7 +153,7 @@ const HomePage = () => {
             <option value="All">All</option>
             <option value="Landscape">Landscape</option>
             <option value="Portrait">Portrait</option>
-            <option value="Square">Square</option>
+            {/* <option value="Square">Square</option> */}
           </select>
         )}
       </div>
