@@ -16,45 +16,38 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [videoFormat, setVideoFormat] = useState("All");
+  const [imageFormat, setImageFormat] = useState("All");
   const { ref, inView } = useInView();
 
   const debouncedQuery = useDebounce(query, 500);
 
-  // Log the fetched video data to inspect the structure
-  const logVideoData = (videoData) => {
-    console.log("Fetched video data:", videoData);
-  };
-
-  // Fetch content based on type (images/videos) and format (for videos)
   const fetchContent = useCallback(
     async (searchQuery, pageNum) => {
       setLoading(true);
       try {
         let newResults = [];
-  
-        // Fetch images when type is "images"
+
         if (type === "images") {
-          newResults = await searchPhotos(searchQuery, pageNum);
+          const fetchedImages = await searchPhotos(searchQuery, pageNum);
+          newResults =
+            imageFormat !== "All"
+              ? filterImagesByFormat(fetchedImages, imageFormat)
+              : fetchedImages;
         } else if (type === "videos") {
           const fetchedVideos = await searchVideos(searchQuery, pageNum);
-  
-          // Log the video data to check structure
-          logVideoData(fetchedVideos);
-  
-          // Apply filtering for videos based on the selected format
           newResults =
             videoFormat !== "All"
               ? filterVideosByFormat(fetchedVideos, videoFormat)
               : fetchedVideos;
         }
-  
+
         if (newResults.length === 0) {
-          setHasMore(false); // No more results available
+          setHasMore(false);
         } else {
           setResults((prevResults) =>
             pageNum === 1 ? newResults : [...prevResults, ...newResults]
           );
-          setHasMore(newResults.length > 0); // Set hasMore based on the results length
+          setHasMore(newResults.length > 0);
         }
       } catch (error) {
         console.error("Error fetching content:", error);
@@ -63,15 +56,14 @@ const HomePage = () => {
         setLoading(false);
       }
     },
-    [type, videoFormat] // Re-run the function when type or videoFormat changes
+    [type, videoFormat, imageFormat]
   );
-  
 
   useEffect(() => {
-    setPage(1); // Reset page on query or type change
-    setResults([]); // Clear results when changing query/type
+    setPage(1);
+    setResults([]);
     fetchContent(debouncedQuery || DEFAULT_QUERY, 1);
-  }, [debouncedQuery, type, videoFormat, fetchContent]); // Added videoFormat as a dependency
+  }, [debouncedQuery, type, videoFormat, imageFormat, fetchContent]);
 
   useEffect(() => {
     if (inView && hasMore && !loading) {
@@ -90,7 +82,8 @@ const HomePage = () => {
   const handleTypeChange = useCallback(
     (newType) => {
       setType(newType);
-      setVideoFormat("All"); // Reset video format filter when switching type
+      setVideoFormat("All");
+      setImageFormat("All");
       setPage(1);
       setResults([]);
       fetchContent(debouncedQuery || DEFAULT_QUERY, 1);
@@ -98,31 +91,62 @@ const HomePage = () => {
     [debouncedQuery, fetchContent]
   );
 
-  const handleFormatChange = (event) => {
+  const handleVideoFormatChange = (event) => {
     const newFormat = event.target.value;
     setVideoFormat(newFormat);
-    setPage(1); // Reset page when changing video format
-    setResults([]); // Clear previous results
-    setHasMore(true); // Reset 'hasMore' flag for fresh fetch
-    fetchContent(debouncedQuery || DEFAULT_QUERY, 1); // Fetch new data for the selected format
+    setPage(1);
+    setResults([]);
+    setHasMore(true);
+    fetchContent(debouncedQuery || DEFAULT_QUERY, 1);
   };
-  
 
-  // Function to filter videos based on their format (Landscape, Portrait, Square)
+  const handleImageFormatChange = (event) => {
+    const newFormat = event.target.value;
+    setImageFormat(newFormat);
+    setPage(1);
+    setResults([]);
+    setHasMore(true);
+    fetchContent(debouncedQuery || DEFAULT_QUERY, 1);
+  };
+
   const filterVideosByFormat = (videos, format) => {
     return videos.filter((video) => {
-      const { width, height } = video.video_files[0];
-      const aspectRatio = height / width;
+      // Ensure video has files
+      if (!video.video_files || video.video_files.length === 0) return false;
+  
+      // Find the best video file for aspect ratio calculation
+      const videoFile = video.video_files.reduce((max, file) =>
+        file.height > max.height ? file : max
+      );
+  
+      const { width, height } = videoFile;
+      const aspectRatio = width / height;
+  
+      switch (format) {
+        case "Horizontal": 
+          // Landscape: width > height
+          return width > height;
+        case "Vertical": 
+          // Portrait: height > width
+          return height > width;
+        default: 
+          return true;
+      }
+    });
+  };
+
+  const filterImagesByFormat = (images, format) => {
+    return images.filter((image) => {
+      const { width, height } = image;
+      const aspectRatio = width / height;
 
       switch (format) {
-        case "Landscape":
-          return aspectRatio < 1; // Landscape: width > height
-        case "Portrait":
-          return aspectRatio > 1; // Portrait: height > width
-        // case "Square":
-        //   return aspectRatio === 1; // Square: height == width
+        case "Horizontal":
+          return aspectRatio > 1; // Landscape
+        case "Vertical":
+          return aspectRatio < 1; // Portrait
         default:
-          return true; // Show all videos if no specific format is selected
+          return true;
       }
     });
   };
@@ -147,13 +171,23 @@ const HomePage = () => {
         {type === "videos" && (
           <select
             value={videoFormat}
-            onChange={handleFormatChange}
+            onChange={handleVideoFormatChange}
             className="filter-select"
           >
             <option value="All">All</option>
-            <option value="Landscape">Landscape</option>
-            <option value="Portrait">Portrait</option>
-            {/* <option value="Square">Square</option> */}
+            <option value="Horizontal">Horizontal (Landscape)</option>
+            <option value="Vertical">Vertical (Portrait)</option>
+          </select>
+        )}
+        {type === "images" && (
+          <select
+            value={imageFormat}
+            onChange={handleImageFormatChange}
+            className="filter-select"
+          >
+            <option value="All">All</option>
+            <option value="Horizontal">Horizontal (Landscape)</option>
+            <option value="Vertical">Vertical (Portrait)</option>
           </select>
         )}
       </div>
@@ -174,3 +208,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+
