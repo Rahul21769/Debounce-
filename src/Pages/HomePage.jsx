@@ -22,23 +22,17 @@ const HomePage = () => {
   const debouncedQuery = useDebounce(query, 500);
 
   const fetchContent = useCallback(
-    async (searchQuery, pageNum) => {
+    async (searchQuery, pageNum, format) => {
       setLoading(true);
       try {
         let newResults = [];
 
         if (type === "images") {
-          const fetchedImages = await searchPhotos(searchQuery, pageNum);
-          newResults =
-            imageFormat !== "All"
-              ? filterImagesByFormat(fetchedImages, imageFormat)
-              : fetchedImages;
+          const fetchedImages = await searchPhotos(searchQuery, pageNum, 15, format);
+          newResults = fetchedImages;
         } else if (type === "videos") {
-          const fetchedVideos = await searchVideos(searchQuery, pageNum);
-          newResults =
-            videoFormat !== "All"
-              ? filterVideosByFormat(fetchedVideos, videoFormat)
-              : fetchedVideos;
+          const fetchedVideos = await searchVideos(searchQuery, pageNum, 5, format);
+          newResults = fetchedVideos;
         }
 
         if (newResults.length === 0) {
@@ -62,12 +56,12 @@ const HomePage = () => {
   useEffect(() => {
     setPage(1);
     setResults([]);
-    fetchContent(debouncedQuery || DEFAULT_QUERY, 1);
+    fetchContent(debouncedQuery || DEFAULT_QUERY, 1, videoFormat);
   }, [debouncedQuery, type, videoFormat, imageFormat, fetchContent]);
 
   useEffect(() => {
     if (inView && hasMore && !loading) {
-      fetchContent(debouncedQuery || DEFAULT_QUERY, page + 1);
+      fetchContent(debouncedQuery || DEFAULT_QUERY, page + 1, videoFormat);
       setPage((prevPage) => prevPage + 1);
     }
   }, [inView, hasMore, loading, fetchContent, debouncedQuery, page]);
@@ -86,9 +80,9 @@ const HomePage = () => {
       setImageFormat("All");
       setPage(1);
       setResults([]);
-      fetchContent(debouncedQuery || DEFAULT_QUERY, 1);
+      fetchContent(debouncedQuery || DEFAULT_QUERY, 1, videoFormat);
     },
-    [debouncedQuery, fetchContent]
+    [debouncedQuery, fetchContent, videoFormat]
   );
 
   const handleVideoFormatChange = (event) => {
@@ -97,7 +91,7 @@ const HomePage = () => {
     setPage(1);
     setResults([]);
     setHasMore(true);
-    fetchContent(debouncedQuery || DEFAULT_QUERY, 1);
+    fetchContent(debouncedQuery || DEFAULT_QUERY, 1, videoFormat);
   };
 
   const handleImageFormatChange = (event) => {
@@ -109,7 +103,7 @@ const HomePage = () => {
     fetchContent(debouncedQuery || DEFAULT_QUERY, 1);
   };
 
-  const filterVideosByFormat = (videos, format) => {
+  /* const filterVideosByFormat = (videos, format) => {
     return videos.filter((video) => {
       // Ensure video has files
       if (!video.video_files || video.video_files.length === 0) return false;
@@ -133,7 +127,7 @@ const HomePage = () => {
           return true;
       }
     });
-  };
+  }; */
 
   const filterImagesByFormat = (images, format) => {
     return images.filter((image) => {
@@ -168,18 +162,18 @@ const HomePage = () => {
             Videos
           </button>
         </div>
-        {type === "videos" && (
-          <select
-            value={videoFormat}
-            onChange={handleVideoFormatChange}
-            className="filter-select"
-          >
-            <option value="All">All</option>
-            <option value="Horizontal">Horizontal (Landscape)</option>
-            <option value="Vertical">Vertical (Portrait)</option>
-          </select>
-        )}
-        {type === "images" && (
+        {/* {type === "videos" && ( */}
+        <select
+          value={videoFormat}
+          onChange={handleVideoFormatChange}
+          className="filter-select"
+        >
+          <option value="All">All</option>
+          <option value="Horizontal">Horizontal (Landscape)</option>
+          <option value="Vertical">Vertical (Portrait)</option>
+        </select>
+        {/* )} */}
+        {/* {type === "images" && (
           <select
             value={imageFormat}
             onChange={handleImageFormatChange}
@@ -189,7 +183,7 @@ const HomePage = () => {
             <option value="Horizontal">Horizontal (Landscape)</option>
             <option value="Vertical">Vertical (Portrait)</option>
           </select>
-        )}
+        )} */}
       </div>
 
       <SearchBar onSearch={handleSearch} defaultQuery={DEFAULT_QUERY} />
